@@ -1,0 +1,33 @@
+name: Generate Flutter Icons
+on:
+  push:
+    paths:
+      - 'icons/*.svg' # This trigger the robot whenever you add/change an SVG in the "icons" folder
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install Fantasticon
+        run: npm install -g fantasticon
+
+      - name: Generate Icon Font and Dart File
+        run: |
+          # This command converts SVGs to a Font and a Dart class
+          fantasticon icons/ -o generated/ -t ttf --name MyDesignSystemIcons
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "IconBot"
+          git config --global user.email "bot@github.com"
+          git add .
+          git commit -m "Automated: Updated Flutter icons from Figma" || exit 0
+          git push
